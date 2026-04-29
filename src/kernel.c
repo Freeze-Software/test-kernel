@@ -36,6 +36,11 @@ static void print_help(void) {
     console_writeln("  echo");
     console_writeln("  reboot");
     console_writeln("  halt");
+    console_writeln("  Turtle talk");
+}
+
+static void turtle_talk(void) {
+    console_writeln("Hello! I am James the turtle, welcome to my shell! How are you doing?");
 }
 
 static void run_command(const char *cmd) {
@@ -45,6 +50,12 @@ static void run_command(const char *cmd) {
 
     if (streq(cmd, "help")) {
         print_help();
+        return;
+    }
+
+    if (streq(cmd, "Turtle talk")) {
+        turtle_talk();
+        console_writeln(cmd + 12);
         return;
     }
 
