@@ -11,14 +11,7 @@
 - `grub/grub.cfg`
 - `Makefile`
 
-## Emulators
-
-```bash
-sudo apt update
-sudo apt install -y build-essential gcc-multilib grub-pc-bin xorriso qemu-system-x86
-```
-
-## instructions
+## gow to run
 run:
 ```bash
 make clean
