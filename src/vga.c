@@ -3,7 +3,7 @@
 #define VGA_WIDTH 80
 #define VGA_HEIGHT 25
 #define VGA_MEMORY ((volatile uint16_t *)0xB8000)
-#define VGA_COLOR 0x0F
+#define VGA_COLOR 0x2F
 
 static size_t row = 0;
 static size_t col = 0;
