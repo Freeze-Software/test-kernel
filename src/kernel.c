@@ -66,6 +66,7 @@ static void print_help(void) {
     console_writeln("  echo");
     console_writeln("  date");
     console_writeln("  calc");
+    console_writeln("  swamp");
     console_writeln("  reboot");
     console_writeln("  halt");
     console_writeln("  Turtle talk");
@@ -188,6 +189,83 @@ static void cmd_calc(const char *expr) {
     console_putc('\n');
 }
 
+static uint32_t swamp_seed = 0;
+
+static uint32_t swamp_rand(void) {
+    if (swamp_seed == 0) {
+        uint8_t sec = bcd2bin(cmos_read(0x00));
+        uint8_t min = bcd2bin(cmos_read(0x02));
+        uint8_t hour = bcd2bin(cmos_read(0x04));
+        swamp_seed = ((uint32_t)hour << 16) ^ ((uint32_t)min << 8) ^ sec ^ 0xA5A5u;
+        if (swamp_seed == 0) {
+            swamp_seed = 1;
+        }
+    }
+
+    swamp_seed = swamp_seed * 1664525u + 1013904223u;
+    return swamp_seed;
+}
+
+static int parse_uint(const char *s, unsigned int *out) {
+    unsigned int n = 0;
+    int saw_digit = 0;
+
+    while (*s == ' ') {
+        s++;
+    }
+
+    while (*s >= '0' && *s <= '9') {
+        saw_digit = 1;
+        n = (n * 10u) + (unsigned int)(*s - '0');
+        s++;
+    }
+
+    while (*s == ' ') {
+        s++;
+    }
+
+    if (!saw_digit || *s != '\0') {
+        return 0;
+    }
+
+    *out = n;
+    return 1;
+}
+
+static void cmd_swamp(const char *arg) {
+    static const char chars[] =
+        "abcdefghijklmnopqrstuvwxyz"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "0123456789"
+        "!@#$%^&*()_+-=[]{};:'\",.<>/?\\|`~";
+    const unsigned int charset_len = (unsigned int)(sizeof(chars) - 1);
+    unsigned int lines = 10;
+    unsigned int width = 60;
+
+    if (arg[0] != '\0') {
+        if (!parse_uint(arg, &lines)) {
+            console_writeln("Usage: The swamp [lines]");
+            return;
+        }
+    }
+
+    if (lines == 0) {
+        lines = 1;
+    }
+    if (lines > 40) {
+        lines = 40;
+    }
+
+    console_writeln("  ");
+    for (unsigned int y = 0; y < lines; y++) {
+        for (unsigned int x = 0; x < width; x++) {
+            uint32_t r = swamp_rand();
+            console_putc(chars[r % charset_len]);
+        }
+        console_putc('\n');
+    }
+}
+
 static void turtle_talk(const char *message) {
     if (message[0] == '\0') {
         console_writeln("James: Hello Folks! I am James the Turtle! how are you?");
@@ -269,6 +347,16 @@ static void run_command(const char *cmd) {
 
     if (streq(cmd, "calc")) {
         cmd_calc("");
+        return;
+    }
+
+    if (streq(cmd, "swamp")) {
+        cmd_swamp("");
+        return;
+    }
+
+    if (starts_with(cmd, "swamp ")) {
+        cmd_swamp(cmd + 10);
         return;
     }
 
