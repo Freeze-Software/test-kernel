@@ -65,7 +65,7 @@ static void run_command(const char *cmd) {
     }
 
     if (streq(cmd, "halt")) {
-        console_writeln("Halting CPU.");
+        console_writeln("Halting the turtle's shell...");
         __asm__ volatile("cli");
         for (;;) {
             __asm__ volatile("hlt");
